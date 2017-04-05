@@ -58,7 +58,6 @@ In Safari, minify text.
 What follows is the server that Node runs.
 */
 
-var request = require('request');
 var express = require('express');
 var cors = require('cors');
 var bodyParser = require('body-parser');
