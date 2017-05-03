@@ -14,11 +14,16 @@ $ npm install
 Then create keys
 (http://www.chovy.com/web-development/self-signed-certs-with-secure-websockets-in-node-js/):
 
-$ openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 100 \
--nodes
+$ openssl req -x509 -sha256 -newkey rsa:2048 -keyout key.pem -out cert.pem -days
+1024 -nodes
 
 Highly recommended but optional: instruct your operating system to trust this
-key. https://certsimple.com/blog/localhost-ssl-fix for macOS
+key. https://certsimple.com/blog/localhost-ssl-fix for macOS but in a nutshell:
+
+$ openssl pkcs12 -export -clcerts -inkey key.pem -in cert.pem -out MyPKCS12.p12
+-name "Your Name"
+
+followed by importing into Keychain.
 
 Finally, run the server,
 
@@ -35,6 +40,12 @@ Bookmarklet code: prepend `javascript:` to the following function:
       title : document.title,
       selection : window.getSelection().toString()
     };
+
+    var d = (new Date()).toUTCString();
+    var s = '    Date: ' + d + '\n    Tag: clip\n\n¶ [' + o.title + '](' +
+            o.url + ')\n\n' + (o.selection ? '>' : '') +
+            o.selection.replace(/\n/g, '\n> ');
+    console.log(s);
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", 'https://localhost:8443', true);
@@ -95,16 +106,19 @@ app.post('/', (req, res) => {
   var latestMd = getLastContentMd();
   var md = fs.readFileSync(latestMd, 'utf8');
   var top = clipToString(req.body);
-  console.log(top);
+  // console.log(top);
 
   var mdTitle = extractTitle(md);
   var topTitle = extractTitle(top);
   if (mdTitle.title === topTitle.title) {
     md = md.slice(mdTitle.skip + topTitle.title.length).trimLeft();
     fs.writeFileSync(latestMd, top + '\n\n' + md);
+    console.log('Appended to: ' + latestMd);
   } else {
     var tstring = moment(req.body.date || new Date()).utc().format();
     var fname = `content/${tstring.replace(/:/g, '..')}-clip.md`;
+    console.log('Wrote to: ' + fname);
+
     fs.writeFileSync(fname, top);
   }
   // child.execSync('git add README.md && git commit -m clip && git push');
