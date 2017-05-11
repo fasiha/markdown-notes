@@ -43,7 +43,7 @@ Bookmarklet code: prepend `javascript:` to the following function:
 
     var d = (new Date()).toUTCString();
     var s = '    Date: ' + d + '\n    Tag: clip\n\n¶ [' + o.title + '](' +
-            o.url + ')\n\n' + (o.selection ? '>' : '') +
+            o.url + ')\n\n' + (o.selection ? '> ' : '') +
             o.selection.replace(/\n/g, '\n> ');
     console.log(s);
 
