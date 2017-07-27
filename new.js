@@ -10,4 +10,4 @@ var header = `    Date: ${tstring}
 
 var fs = require('fs');
 fs.writeFileSync(fname, header);
-console.log('Edit:\n\n' + fname);
+console.log(fname);
